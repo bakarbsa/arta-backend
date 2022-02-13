@@ -19,7 +19,7 @@ const articleSchema = mongoose.Schema({
   },
   image: {
     type: String,
-    default: 'image.png'
+    default: 'http://localhost:3000/uploads/default-article.jpg'
   },
   content: {
     type: String,

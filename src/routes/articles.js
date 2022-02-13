@@ -1,50 +1,34 @@
 const express = require('express');
-const article = require('../models/articles');
+const multer = require('multer'); 
+const articleAPI = require('../controllers/articles');
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  try {
-    const articleList = await article.find();
-    if(!articleList) throw new Error('Article not found');
-    res.status(200).json(articleList);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './public/uploads');
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname);
   }
 });
 
-router.post('/', async (req, res) => {
-  const newArticle = new article(req.body);
-  try {
-    const articleList = await newArticle.save();
-    if(!articleList) throw Error('Something went wrong saving the article.');
-    res.status(200).json(articleList);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+const fileFilter = (req, file, cb) => {
+  if( file.mimetype === 'image/png' || 
+      file.mimetype === 'image/jpg' || 
+      file.mimetype === 'image/jpeg' ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
   }
-});
+};
 
-router.put('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const response = await article.findByIdAndUpdate(id, req.body);
-    if(!response) throw Error('Something went wrong');
-    const updated = { ...response._doc, ...req.body };
-    res.status(200).json(updated);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+const upload = multer({ storage: fileStorage, fileFilter: fileFilter }).single('image');
 
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const removed = await article.findByIdAndDelete(id);
-    if(!removed) throw Error('Something went wrong');
-    res.status(200).json(removed);
-  } catch (err) {
-    res.status(200).json({ message: err.message });
-  }
-});
+router.get('/', articleAPI.getAllArticles);
+router.get('/:id', articleAPI.getArticleById);
+router.post('/', upload, articleAPI.createArticle);
+router.patch('/:id', upload, articleAPI.updateArticle);
+router.delete('/:id', articleAPI.deleteArticle);
 
 module.exports = router;
