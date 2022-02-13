@@ -19,7 +19,7 @@ const articleSchema = mongoose.Schema({
   },
   image: {
     type: String,
-    default: 'http://localhost:3000/uploads/default-article.jpg'
+    default: 'https://arta-backend.herokuapp.com/uploads/default-article.jpg'
   },
   content: {
     type: String,
