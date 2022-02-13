@@ -15,14 +15,13 @@ app.use(morgan('tiny'));
 app.use(express.json());
 
 dotenv.config();
-const PORT = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 app.use('/article', articleRoutes);
 app.use('/feedback', feedbackRoutes);
 app.use('/newsletter', newsletterRoutes);
 
-app.listen(PORT, () => {
+app.listen(process.env.PORT || 5000, () => {
   mongoose
     .connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
